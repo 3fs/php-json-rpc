@@ -1,0 +1,23 @@
+language: php
+
+php:
+    - 5.5
+    - 5.6
+
+cache:
+    apt: true
+    directories:
+        - ./vendor
+
+install:
+    - composer install --prefer-source
+
+script:
+    - ./build/qa.sh lint
+    - ./build/qa.sh cpd
+    - ./build/qa.sh cs
+    - ./build/qa.sh unit
+    - ./build/qa.sh md || true
+
+notifications:
+  email: david@3fs.si
