@@ -1,0 +1,33 @@
+{
+    "name": "trifs/jsonrpc",
+    "description": "A simple JSON-RPC client and server",
+    "keywords": [
+        "json",
+        "rpc",
+        "jsonrpc",
+        "client",
+        "server"
+    ],
+    "homepage": "https://github.com/3fs/jsonrpc",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "trifs\\": "src/trifs"
+        }
+    },
+    "require": {
+        "php": ">5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit":           "3.7.*",
+        "sebastian/phpcpd":          "*",
+        "phpmd/phpmd" :              "1.4.*",
+        "squizlabs/php_codesniffer": "1.*"
+    },
+    "authors": [
+        {
+            "name": "David Kuridža",
+            "email": "david@3fs.si"
+        }
+    ]
+}
