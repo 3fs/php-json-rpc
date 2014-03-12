@@ -35,23 +35,23 @@ case "${1:-}" in
         ;;
     # PHP code lint
     lint)
-        cmd="find src tests/unit -type f -name '*.php' | xargs -n1 -P4 php -l | grep -v \"No syntax errors detected\"";
+        cmd="find src tests/unit -type f -name '*.php' | xargs -n1 -P4 php -l";
         ;;
     # PHP unit tests with code coverage
     unit)
-        cmd="/vagrant/vendor/bin/phpunit -c phpunit.xml";
+        cmd="./vendor/bin/phpunit -c phpunit.xml";
         ;;
     # PHP coding standards
     cs)
-        cmd="/vagrant/vendor/bin/phpcs --standard=PSR2 src tests/unit"
+        cmd="./vendor/bin/phpcs --standard=PSR2 src tests/unit"
         ;;
     # PHP mess detector
     md)
-        cmd="/vagrant/vendor/bin/phpmd src,tests/unit text codesize,unusedcode,naming,controversial --strict";
+        cmd="./vendor/bin/phpmd src,tests/unit text codesize,unusedcode,naming,controversial --strict";
         ;;
     # PHP opy/paste detector
     cpd)
-        cmd="/vagrant/vendor/bin/phpcpd src tests/unit";
+        cmd="./vendor/bin/phpcpd src tests/unit";
         ;;
     # everything else :)
     *)
@@ -65,7 +65,7 @@ VAGRANT_BIN=`which vagrant`;
 # no vagrant found implies the command is run from vagrant directly
 if [ -z "${VAGRANT_BIN}" ]
 then
-    cd /vagrant && eval "${cmd}"
+    eval "${cmd}"
 else
     ${VAGRANT_BIN} ssh -c "cd /vagrant && ${cmd}"
 fi
