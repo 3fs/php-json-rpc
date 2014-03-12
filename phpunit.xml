@@ -25,6 +25,9 @@
              lowUpperBound  = "35"
              highLowerBound = "70"
          />
+        <log type   = "coverage-text"
+             target = "php://stdout"
+        />
     </logging>
 
     <filter>
