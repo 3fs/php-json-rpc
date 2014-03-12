@@ -12,8 +12,8 @@ Simply add a dependency on `trifs/phpjsonrpc` to your project's `composer.json` 
 
 ```php
 {
-    "require-dev": {
-        "trifs/phpjsonrpc": "*"
+    "require": {
+        "trifs/jsonrpc": "dev-master"
     }
 }
 ```
