@@ -2,6 +2,8 @@
 
 PHP JSON-RPC is a simple JSON-RPC client and server. It is currently in an alpha state, a stable version is expected soon. Word of warning, API will probably change soon as well :)
 
+[![Build Status](https://travis-ci.org/3fs/php-json-rpc.png?branch=master)](https://travis-ci.org/3fs/php-json-rpc)
+
 ## Installation
 
 ### Composer
