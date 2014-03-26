@@ -49,7 +49,7 @@ case "${1:-}" in
     md)
         cmd="./vendor/bin/phpmd src,tests/unit text codesize,unusedcode,naming,controversial --strict";
         ;;
-    # PHP opy/paste detector
+    # PHP copy/paste detector
     cpd)
         cmd="./vendor/bin/phpcpd src tests/unit";
         ;;
