@@ -7,7 +7,7 @@ set -u
 
 _usage()
 {
-    echo ":plugger QA tools"
+    echo "QA tools"
     echo ""
     echo "Usage: build/qa.sh command"
     echo ""
