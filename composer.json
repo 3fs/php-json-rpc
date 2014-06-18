@@ -21,7 +21,7 @@
     "require-dev": {
         "phpunit/phpunit":           "3.7.*",
         "sebastian/phpcpd":          "*",
-        "phpmd/phpmd" :              "1.4.*",
+        "phpmd/phpmd":               "2.0.0.*@dev",
         "squizlabs/php_codesniffer": "1.*"
     },
     "authors": [
