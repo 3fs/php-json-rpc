@@ -11,9 +11,14 @@
     "homepage": "https://github.com/3fs/php-json-rpc",
     "license": "MIT",
     "autoload": {
-        "psr-4": {
-            "trifs\\": "src/trifs"
-        }
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
     },
     "require": {
         "php": ">=5.5"

@@ -6,7 +6,7 @@
          stopOnError            = "true"
          stopOnFailure          = "true"
          stopOnIncomplete       = "true"
-         bootstrap              = "./tests/bootstrap.php"
+         bootstrap              = "./vendor/autoload.php"
 >
 
     <testsuites>
