@@ -19,14 +19,26 @@ class Client
     private $uri;
 
     /**
+     * Holds timeout value in seconds
+     *
+     * @var float
+     */
+    private $timeout;
+
+    /**
      * Constructor, sets endpoint URI.
      *
      * @param  string $uri
+     * @param  array  $options Supported keys: timeout
      * @return void
      */
-    public function __construct($uri)
+    public function __construct($uri, array $options = [])
     {
         $this->uri = $uri;
+
+        if (isset($options['timeout'])) {
+            $this->setTimeout($options['timeout']);
+        }
     }
 
     /**
@@ -75,16 +87,22 @@ class Client
             $payload = json_encode($this->requests[0]);
         }
 
-        $context = stream_context_create([
+        $options = [
             'http' => [
                 'method'  => 'POST',
                 'header'  => 'Content-Type: application/json',
                 'content' => $payload,
             ],
-        ]);
+        ];
+
+        // add timeout if value was set
+        // otherwise php uses ini value default_socket_timeout
+        if (!is_null($this->getTimeout())) {
+            $options['http']['timeout'] = $this->getTimeout();
+        }
 
         // oops?
-        if (false === $response = file_get_contents($this->uri, false, $context)) {
+        if (false === $response = file_get_contents($this->uri, false, stream_context_create($options))) {
             throw new \RuntimeException('Unable to connect to ' . $this->uri);
         }
 
@@ -112,6 +130,28 @@ class Client
         }
 
         return $result;
+    }
+
+    /**
+     * Sets socket timeout
+     *
+     * @param  mixed $timeout
+     * @return Client
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = (float) $timeout;
+        return $this;
+    }
+
+    /**
+     * Get socket timeout.
+     *
+     * @return float|null
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
     }
 
     /**

@@ -26,6 +26,28 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new Client('');
         $client->request('method')
-                ->send();
+            ->send();
+    }
+
+    /**
+     * @return void
+     */
+    public function testSetTimeout()
+    {
+        $client = new Client('');
+        $this->assertNull($client->getTimeout());
+
+        $this->assertSame(10.5, $client->setTimeout(10.5)->getTimeout());
+        $this->assertSame(10.5, $client->setTimeout('10.5')->getTimeout());
+        $this->assertSame(10.0, $client->setTimeout(10)->getTimeout());
+    }
+
+    /**
+     * @return void
+     */
+    public function testSetTimeoutInConstruct()
+    {
+        $client = new Client('', ['timeout' => 10.5]);
+        $this->assertSame(10.5, $client->getTimeout());
     }
 }
