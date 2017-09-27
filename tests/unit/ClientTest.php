@@ -2,6 +2,7 @@
 namespace trifs\jsonrpc\tests\unit;
 
 use trifs\jsonrpc\Client;
+use trifs\jsonrpc\Client\Transporter\TransporterInterface;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,15 +19,63 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessage file_get_contents(): Filename cannot be empty
-     * @expectedExceptionCode    2
+     * @return void
      */
     public function testEmptyEndpoint()
     {
+        // set up mock transporter to expect certain parameters
+        $transporter = $this->getMock(TransporterInterface::class);
+        $transporter->method('request')
+            ->with(
+                $this->equalTo(''),
+                $this->callback(function ($obj) {
+                    $payload = json_decode($obj);
+                    $this->assertEquals($payload->jsonrpc, '2.0');
+                    $this->assertEquals($payload->method, 'method');
+                    return true;
+                }),
+                $this->equalTo(['timeout' => null])
+            )
+            ->willReturn(null);
+
         $client = new Client('');
-        $client->request('method')
-            ->send();
+        $client->setTransporter($transporter);
+        $result = $client->request('method')->send();
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testNotificationWithError()
+    {
+        $uri = (string) rand();
+        $timeout = rand();
+
+        // set up mock transporter to expect certain parameters
+        $transporter = $this->getMock(TransporterInterface::class);
+        $transporter->method('request')
+            ->with(
+                $this->equalTo($uri),
+                $this->callback(function ($obj) {
+                    $payload = json_decode($obj);
+                    $this->assertEquals($payload->jsonrpc, '2.0');
+                    $this->assertEquals($payload->method, 'method');
+
+                    // notification contains ID
+                    $this->assertNotEmpty($payload->id);
+                    return true;
+                }),
+                $this->equalTo(['timeout' => $timeout])
+            )
+            ->willReturn(json_encode(['error' => 'something_wrong']));
+
+        $client = new Client($uri, ['timeout' => $timeout]);
+        $client->setTransporter($transporter);
+        $result = $client->request('method')->send();
+
+        $this->assertEquals($result, ['error' => 'something_wrong']);
     }
 
     /**

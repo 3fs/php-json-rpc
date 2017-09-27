@@ -1,9 +1,12 @@
 <?php
 namespace trifs\jsonrpc;
 
+use trifs\jsonrpc\Client\Transporter\TransporterInterface;
+use trifs\jsonrpc\Client\Transporter\DefaultTransporter;
+use trifs\jsonrpc\Client\Transporter\Exception as TransporterException;
+
 class Client
 {
-
     /**
      * Holds list of requests to be sent.
      *
@@ -26,19 +29,30 @@ class Client
     private $timeout;
 
     /**
-     * Constructor, sets endpoint URI.
+     * Holds transporter.
      *
-     * @param  string $uri
-     * @param  array  $options Supported keys: timeout
+     * @var TransporterInterface
+     */
+    private $transporter;
+
+    /**
+     * Constructor, sets endpoint URI, options.
+     *
+     * @param  string               $uri
+     * @param  array                $options Supported keys: timeout
      * @return void
      */
     public function __construct($uri, array $options = [])
     {
         $this->uri = $uri;
 
+        $this->setTimeout(ini_get('default_socket_timeout'));
+
         if (isset($options['timeout'])) {
             $this->setTimeout($options['timeout']);
         }
+
+        $this->setTransporter(new DefaultTransporter());
     }
 
     /**
@@ -87,23 +101,15 @@ class Client
             $payload = json_encode($this->requests[0]);
         }
 
-        $options = [
-            'http' => [
-                'method'  => 'POST',
-                'header'  => 'Content-Type: application/json',
-                'content' => $payload,
-            ],
-        ];
-
-        // add timeout if value was set
-        // otherwise php uses ini value default_socket_timeout
-        if (!is_null($this->getTimeout())) {
-            $options['http']['timeout'] = $this->getTimeout();
-        }
-
-        // oops?
-        if (false === $response = file_get_contents($this->uri, false, stream_context_create($options))) {
-            throw new \RuntimeException('Unable to connect to ' . $this->uri);
+        // execute request with configured http transporter
+        try {
+            $response = $this->transporter->request(
+                $this->uri,
+                $payload,
+                ['timeout' => $this->getTimeout()]
+            );
+        } catch (TransporterException $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
 
         // notification
@@ -140,6 +146,9 @@ class Client
      */
     public function setTimeout($timeout)
     {
+        if ((float) $timeout <= 0.0) {
+            throw new \RuntimeException('Timeout should be greater than 0');
+        }
         $this->timeout = (float) $timeout;
         return $this;
     }
@@ -147,11 +156,11 @@ class Client
     /**
      * Get socket timeout.
      *
-     * @return float|null
+     * @return float
      */
     public function getTimeout()
     {
-        return $this->timeout;
+        return (float) $this->timeout;
     }
 
     /**
@@ -187,5 +196,17 @@ class Client
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    /**
+     * Set transporter.
+     *
+     * @param TransporterInterface $transporter
+     * @return Client
+     */
+    public function setTransporter(TransporterInterface $transporter)
+    {
+        $this->transporter = $transporter;
+        return $this;
     }
 }

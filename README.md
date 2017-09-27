@@ -48,6 +48,25 @@ $client->request('method-one')
     ->send();
 ```
 
+### Client configuration
+
+Client can be configured with additional options:
+ - `timeout` in seconds, connection timeout for `file_get_contents` calls.
+
+```php
+$client = new trifs\jsonrpc\Client(
+    'http://example.com',
+    ['timeout' => 5, ]
+);
+```
+
+There is also the option of swapping `file_get_contents` call with an implementation that uses `curl`:
+```php
+$client->setTransporter(new trifs\jsonrpc\Client\Transporter\CurlTransporter());
+```
+The option might be useful if php.ini configuration `allow_url_fopen` is set to `Off`, which disables `file_get_contents` for remote URLs.
+
+
 ### Server
 
 ```php
