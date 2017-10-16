@@ -23,6 +23,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testEmptyEndpoint()
     {
+        // default timeout
+        $timeout = (float) ini_get('default_socket_timeout');
+
         // set up mock transporter to expect certain parameters
         $transporter = $this->getMock(TransporterInterface::class);
         $transporter->method('request')
@@ -34,7 +37,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                     $this->assertEquals($payload->method, 'method');
                     return true;
                 }),
-                $this->equalTo(['timeout' => null])
+                $this->equalTo(['timeout' => $timeout])
             )
             ->willReturn(null);
 
@@ -84,7 +87,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testSetTimeout()
     {
         $client = new Client('');
-        $this->assertNull($client->getTimeout());
+
+        // default timeout from php.ini
+        $timeout = (float) ini_get('default_socket_timeout');
+        $this->assertSame($timeout, $client->getTimeout());
 
         $this->assertSame(10.5, $client->setTimeout(10.5)->getTimeout());
         $this->assertSame(10.5, $client->setTimeout('10.5')->getTimeout());
